@@ -33,8 +33,8 @@ async def start(_, message: types.Message):
     private = message.chat.type == enums.ChatType.PRIVATE
     raw_name = unicodedata.normalize("NFKD", message.from_user.first_name or "User")
     raw_name = raw_name.translate(str.maketrans({"ι": "i", "Ι": "I", "ʈ": "t", "ƭ": "t", "ʏ": "y", "ʌ": "a"}))
+    clean_name = re.sub(r"[^A-Za-z0-9 ]", "", raw_name)
     clean_name = re.sub(r"\s+", " ", clean_name).strip() or "User"
-    clean_name = re.sub(r"\\s+", " ", clean_name).strip() or "User"
     _text = (
         message.lang["start_pm"].format(clean_name, config.BOT_NAME)
         if private
