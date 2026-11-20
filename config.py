@@ -22,7 +22,7 @@ class Config:
         self.SESSION2 = getenv("SESSION2", None)
         self.SESSION3 = getenv("SESSION3", None)
 
-        self.SUPPORT_CHAT = "https://t.me/+6yK6-KDlo1Y1ZTg5"
+        self.SUPPORT_CHAT = "https://t.me/+xbOwGbcZA-AwZDkx"
         self.SUPPORT_CHANNEL = self.SUPPORT_CHAT
         self.BOT_NAME = "˹ᴢᴇʙᴏʀᴧ ꭙ мᴜsɪᴄ˼ ♪"
         self.OWNER_USERNAME = "@II_YUTA_II"
