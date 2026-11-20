@@ -21,4 +21,6 @@ async def _stop(_, m: types.Message):
     if not call:
         return await m.reply_text(m.lang["not_playing"])
 
-    await m.reply_text(m.lang["play_stopped"].format(m.from_user.mention))
+    await m.reply_text(
+        f"<blockquote>{m.lang['play_stopped'].format(m.from_user.mention)}</blockquote>"
+    )
