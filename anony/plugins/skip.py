@@ -17,4 +17,6 @@ async def _skip(_, m: types.Message):
         return await m.reply_text(m.lang["not_playing"])
 
     await anon.play_next(m.chat.id)
-    await m.reply_text(m.lang["play_skipped"].format(m.from_user.mention))
+    await m.reply_text(
+        f"<blockquote>{m.lang['play_skipped'].format(m.from_user.mention)}</blockquote>"
+    )
