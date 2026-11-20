@@ -35,7 +35,6 @@ async def start(_, message: types.Message):
         else message.lang["start_gp"].format(config.BOT_NAME)
     )
 
-    _text += f"\\n\\n<b>Owner:</b> {config.OWNER_USERNAME}"
     key = buttons.start_key(message.lang, private)
     await message.reply_photo(
         photo=config.START_IMG,
