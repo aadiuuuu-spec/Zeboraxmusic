@@ -51,6 +51,8 @@ def _seconds(value: str) -> int:
 
 def _views(value) -> str:
     raw = str(value or "0").replace(",", "").strip()
+    if any(mark in raw.lower() for mark in ("k", "m", "b")):
+        return raw if "view" in raw.lower() else f"{raw} views"
     try:
         number = int("".join(ch for ch in raw if ch.isdigit()))
         if number >= 1_000_000:
@@ -116,7 +118,7 @@ class Thumbnail:
     async def generate(self, song: Track, size=SIZE) -> str:
         try:
             os.makedirs("cache", exist_ok=True)
-            output = f"cache/{song.id}_thumb.png"
+            output = f"cache/{song.id}_zeborax_thumb_v2.png"
             if os.path.exists(output):
                 return output
 
