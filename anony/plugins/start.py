@@ -58,6 +58,21 @@ async def start(_, message: types.Message):
         await db.add_chat(message.chat.id)
 
 
+@app.on_message(
+    filters.regex(r"^/[A-Za-z0-9_]+(?:@[A-Za-z0-9_]+)?(?:\\s|$)")
+    & filters.group,
+    group=99,
+)
+async def delete_command_messages(_, message: types.Message):
+    """Delete group command messages when command deletion is enabled."""
+    if not message.from_user or not await db.get_cmd_delete(message.chat.id):
+        return
+    try:
+        await message.delete()
+    except Exception:
+        pass
+
+
 @app.on_message(filters.command(["playmode", "settings"]) & filters.group & ~app.bl_users)
 @lang.language()
 async def settings(_, message: types.Message):
