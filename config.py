@@ -42,10 +42,18 @@ class Config:
         self.START_IMG = getenv("START_IMG", "https://files.catbox.moe/zvziwk.jpg")
 
     def check(self):
-        missing = [
-            var
-            for var in ["API_ID", "API_HASH", "BOT_TOKEN", "MONGO_URL", "LOGGER_ID", "OWNER_ID", "SESSION1"]
-            if not getattr(self, var)
-        ]
+        # SESSION1 is the internal assistant name; its Railway variable is SESSION.
+        required = {
+            "API_ID": self.API_ID,
+            "API_HASH": self.API_HASH,
+            "BOT_TOKEN": self.BOT_TOKEN,
+            "MONGO_URL": self.MONGO_URL,
+            "LOGGER_ID": self.LOGGER_ID,
+            "OWNER_ID": self.OWNER_ID,
+            "SESSION": self.SESSION1,
+        }
+        missing = [name for name, value in required.items() if not value]
         if missing:
-            raise SystemExit(f"Missing required environment variables: {', '.join(missing)}")
+            raise SystemExit(
+                f"Missing required environment variables: {', '.join(missing)}"
+            )
