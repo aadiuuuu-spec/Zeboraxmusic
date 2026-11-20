@@ -30,7 +30,8 @@ async def start(_, message: types.Message):
         return await _help(_, message)
 
     private = message.chat.type == enums.ChatType.PRIVATE
-    display_name = html.escape(message.from_user.first_name or "User")
+    full_name = " ".join(part for part in (message.from_user.first_name, message.from_user.last_name) if part).strip() or "User"
+    display_name = html.escape(full_name)
     _text = (
         message.lang["start_pm"].format(display_name, config.BOT_NAME)
         if private
