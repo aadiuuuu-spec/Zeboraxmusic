@@ -14,7 +14,7 @@ class Thumbnail:
     def __init__(self):
         self.size = (1280, 720)
         self.session: aiohttp.ClientSession | None = None
-        self.title_font = ImageFont.truetype("anony/helpers/Raleway-Bold.ttf", 48)
+        self.title_font = ImageFont.truetype("anony/helpers/Raleway-Bold.ttf", 36)
         self.artist_font = ImageFont.truetype("anony/helpers/Inter-Light.ttf", 29)
         self.small_font = ImageFont.truetype("anony/helpers/Inter-Light.ttf", 22)
         self.brand_font = ImageFont.truetype("anony/helpers/Raleway-Bold.ttf", 25)
@@ -75,8 +75,10 @@ class Thumbnail:
 
             title = str(song.title or "Unknown Track")
             artist = str(getattr(song, "channel_name", None) or "YouTube")
-            title = title[:42] + ("…" if len(title) > 42 else "")
-            artist = artist[:38] + ("…" if len(artist) > 38 else "")
+            while title and draw.textlength(title, font=self.title_font) > 555:
+                title = title[:-2].rstrip() + "…"
+            while artist and draw.textlength(artist, font=self.artist_font) > 555:
+                artist = artist[:-2].rstrip() + "…"
             draw.text((610, 220), "NOW PLAYING", font=self.small_font,
                       fill=(120, 230, 190, 255))
             draw.text((606, 275), title, font=self.title_font,
