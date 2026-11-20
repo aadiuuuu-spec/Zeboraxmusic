@@ -91,14 +91,18 @@ class TgCall(PyTgCalls):
             if not seek_time:
                 media.time = 1
                 await db.add_call(chat_id)
-                title = escape(str(media.title or "Unknown"))
+                raw_title = str(media.title or "Unknown")
+                short_title = raw_title.split("|", 1)[0].split("(", 1)[0].strip() or raw_title
+                title = escape(short_title)
                 url = escape(str(media.url or ""), quote=True)
+                played_by = escape(str(media.user or "Unknown"))
                 text = (
-                    "<blockquote>➻ Sᴛᴀʀᴛᴇᴅ Sᴛʀᴇᴀᴍɪɴɢ</blockquote>"
-                    f"<blockquote>🎧 Sᴏᴜɴᴅ Ɛɴɢᴀɢᴇᴅ ┊ {escape(str(media.duration or '0:00'))} ◤</blockquote>"
+                    "<blockquote>➻ Sᴛᴀʀᴛᴇᴅ Sᴛʀᴇᴀᴍɪɴɢ\\n"
+                    f"🎧 Sᴏᴜɴᴅ Ɛɴɢᴀɢᴇᴅ ┊ {escape(str(media.duration or '0:00'))} ◤\\n"
+                    "🎶</blockquote>"
                     "<blockquote>"
-                    f"🎶 𝖳ɪᴛʟᴇ : <a href=\"{url}\">{title}</a>\n"
-                    f"✨ 𝖯ʟᴀʏᴇᴅ 𝖡ʏ : {media.user or 'Unknown'}"
+                    f"𝖳ɪᴛʟᴇ : <a href=\"{url}\">{title}</a>\\n"
+                    f"✨ 𝖯ʟᴀʏᴇᴅ 𝖡ʏ : {played_by}"
                     "</blockquote>"
                 )
                 keyboard = buttons.controls(chat_id)
