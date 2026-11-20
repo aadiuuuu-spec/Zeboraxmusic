@@ -3,6 +3,8 @@
 # This file is part of AnonXMusic
 
 import asyncio
+import re
+import unicodedata
 from pyrogram import enums, filters, types
 
 from anony import app, config, db, lang
@@ -29,8 +31,12 @@ async def start(_, message: types.Message):
         return await _help(_, message)
 
     private = message.chat.type == enums.ChatType.PRIVATE
+    raw_name = unicodedata.normalize("NFKD", message.from_user.first_name or "User")
+    raw_name = raw_name.translate(str.maketrans({"ι": "i", "Ι": "I", "ʈ": "t", "ƭ": "t", "ʏ": "y", "ʌ": "a"}))
+    clean_name = re.sub(r"[^A-Za-z0-9 ]", "", raw_name)
+    clean_name = re.sub(r"\\s+", " ", clean_name).strip() or "User"
     _text = (
-        message.lang["start_pm"].format(message.from_user.first_name, config.BOT_NAME)
+        message.lang["start_pm"].format(clean_name, config.BOT_NAME)
         if private
         else message.lang["start_gp"].format(config.BOT_NAME)
     )
