@@ -145,19 +145,10 @@ class Inline:
             [self.ikb(text=lang["help"], callback_data="help")],
             [
                 self.ikb(text=lang["support"], url=config.SUPPORT_CHAT),
-                self.ikb(text=lang["channel"], url=config.SUPPORT_CHANNEL),
+                self.ikb(text=lang["channel"], url=config.SUPPORT_CHAT),
             ],
         ]
-        if private:
-            rows += [
-                [
-                    self.ikb(
-                        text=lang["source"],
-                        url="https://github.com/AnonymousX1025/AnonXMusic",
-                    )
-                ]
-            ]
-        else:
+        if not private:
             rows += [[self.ikb(text=lang["language"], callback_data="language")]]
         return self.ikm(rows)
 
