@@ -6,7 +6,7 @@ import asyncio
 import html
 from pyrogram import enums, filters, types
 
-from anony import app, config, db, lang
+from anony import app, config, db, lang, logger
 from anony.helpers import buttons, utils
 
 
@@ -61,7 +61,7 @@ async def start(_, message: types.Message):
 @app.on_message(
     filters.regex(r"^/[A-Za-z0-9_]+(?:@[A-Za-z0-9_]+)?(?:\s|$)")
     & filters.group,
-    group=99,
+    group=-1,
 )
 async def delete_command_messages(_, message: types.Message):
     """Delete group command messages when command deletion is enabled."""
@@ -69,8 +69,8 @@ async def delete_command_messages(_, message: types.Message):
         return
     try:
         await message.delete()
-    except Exception:
-        pass
+    except Exception as ex:
+        logger.warning(f"Could not delete command in {message.chat.id}: {ex}")
 
 
 @app.on_message(filters.command(["playmode", "settings"]) & filters.group & ~app.bl_users)
