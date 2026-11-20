@@ -18,7 +18,7 @@ class Config:
         self.QUEUE_LIMIT = int(getenv("QUEUE_LIMIT", 20))
         self.PLAYLIST_LIMIT = int(getenv("PLAYLIST_LIMIT", 20))
 
-        self.SESSION1 = getenv("SESSION", None)
+        self.SESSION1 = getenv("SESSION", getenv("SESSION_STRING", None))
         self.SESSION2 = getenv("SESSION2", None)
         self.SESSION3 = getenv("SESSION3", None)
 
@@ -50,7 +50,7 @@ class Config:
             "MONGO_URL": self.MONGO_URL,
             "LOGGER_ID": self.LOGGER_ID,
             "OWNER_ID": self.OWNER_ID,
-            "SESSION": self.SESSION1,
+            "SESSION or SESSION_STRING": self.SESSION1,
         }
         missing = [name for name, value in required.items() if not value]
         if missing:
