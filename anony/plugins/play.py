@@ -3,6 +3,7 @@
 # This file is part of AnonXMusic
 
 
+import random
 from pathlib import Path
 
 from pyrogram import filters, types
@@ -35,7 +36,7 @@ async def play_hndlr(
     video: bool = False,
     url: str = None,
 ) -> None:
-    sent = await m.reply_text(m.lang["play_searching"])
+    sent = await m.reply_text(random.choice(["🔍", "🦋", "✨", "🌙", "💫"]))
     file = None
     mention = m.from_user.mention
     media = tg.get_media(m.reply_to_message) if m.reply_to_message else None
