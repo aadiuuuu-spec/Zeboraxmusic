@@ -3,6 +3,8 @@
 # This file is part of AnonXMusic
 
 
+from html import escape
+
 from ntgcalls import (ConnectionNotFound, TelegramServerError,
                       RTMPStreamingUnsupported, ConnectionError,
                       TransportParseException)
@@ -89,11 +91,15 @@ class TgCall(PyTgCalls):
             if not seek_time:
                 media.time = 1
                 await db.add_call(chat_id)
-                text = _lang["play_media"].format(
-                    media.url,
-                    media.title,
-                    media.duration,
-                    media.user,
+                title = escape(str(media.title or "Unknown"))
+                url = escape(str(media.url or ""), quote=True)
+                text = (
+                    "<blockquote>➻ Sᴛᴀʀᴛᴇᴅ Sᴛʀᴇᴀᴍɪɴɢ</blockquote>"
+                    f"<blockquote>🎧 Sᴏᴜɴᴅ Ɛɴɢᴀɢᴇᴅ ┊ {escape(str(media.duration or '0:00'))} ◤</blockquote>"
+                    "<blockquote>"
+                    f"🎶 𝖳ɪᴛʟᴇ : <a href=\"{url}\">{title}</a>\n"
+                    f"✨ 𝖯ʟᴀʏᴇᴅ 𝖡ʏ : {media.user or 'Unknown'}"
+                    "</blockquote>"
                 )
                 keyboard = buttons.controls(chat_id)
                 try:
@@ -102,6 +108,7 @@ class TgCall(PyTgCalls):
                             media=InputMediaPhoto(
                                 media=_thumb,
                                 caption=text,
+                                has_spoiler=True,
                             ),
                             reply_markup=keyboard,
                         )
@@ -113,6 +120,7 @@ class TgCall(PyTgCalls):
                             chat_id=chat_id,
                             photo=_thumb,
                             caption=text,
+                            has_spoiler=True,
                             reply_markup=keyboard,
                         )
                     else:
