@@ -36,8 +36,8 @@ async def start(_, message: types.Message):
     )
 
     key = buttons.start_key(message.lang, private)
-    await message.reply_photo(
-        photo=config.START_IMG,
+    await message.reply_video(
+        video="https://raw.githubusercontent.com/aadiuuuu-spec/Zeboraxmusic/master/start.mp4",
         caption=_text,
         reply_markup=key,
         quote=not private,
