@@ -59,7 +59,7 @@ async def start(_, message: types.Message):
 
 
 @app.on_message(
-    filters.regex(r"^/[A-Za-z0-9_]+(?:@[A-Za-z0-9_]+)?(?:\\s|$)")
+    filters.regex(r"^/[A-Za-z0-9_]+(?:@[A-Za-z0-9_]+)?(?:\s|$)")
     & filters.group,
     group=99,
 )
