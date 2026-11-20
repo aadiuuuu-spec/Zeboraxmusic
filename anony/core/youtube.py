@@ -22,10 +22,10 @@ class DummyLogger:
         pass
 
     def warning(self, msg):
-        pass
+        logger.warning(f"yt-dlp: {msg}")
 
     def error(self, msg):
-        pass
+        logger.error(f"yt-dlp: {msg}")
 
 class YouTube:
     def __init__(self):
@@ -158,10 +158,11 @@ class YouTube:
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 try:
                     ydl.download([url])
-                except (yt_dlp.utils.DownloadError, yt_dlp.utils.ExtractorError):
+                except (yt_dlp.utils.DownloadError, yt_dlp.utils.ExtractorError) as ex:
+                    logger.error(f"YouTube download error for {video_id}: {type(ex).__name__}: {ex}")
                     return None
                 except Exception as ex:
-                    logger.warning("Download failed: %s", ex)
+                    logger.exception(f"Unexpected YouTube download error for {video_id}: {ex}")
                     return None
             return filename
 
