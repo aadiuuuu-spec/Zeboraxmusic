@@ -4,6 +4,8 @@
 
 
 from html import escape
+import re
+import unicodedata
 
 from ntgcalls import (ConnectionNotFound, TelegramServerError,
                       RTMPStreamingUnsupported, ConnectionError,
@@ -95,7 +97,14 @@ class TgCall(PyTgCalls):
                 short_title = raw_title.split("|", 1)[0].split("(", 1)[0].strip() or raw_title
                 title = escape(short_title)
                 url = escape(str(media.url or ""), quote=True)
-                played_by = escape(str(media.user or "Unknown"))
+                raw_user = str(media.user or "Unknown")
+                raw_user = re.sub(r"<[^>]*>", "", raw_user)
+                raw_user = unicodedata.normalize("NFKD", raw_user)
+                raw_user = raw_user.translate(str.maketrans({
+                    "ᴅ": "d", "𝛊": "i", "ʈ": "t", "ʏ": "y", "ʌ": "a",
+                }))
+                played_by = re.sub(r"[^A-Za-z0-9 _.-]", "", raw_user).strip() or "Unknown"
+                played_by = escape(played_by)
                 text = (
                     "<blockquote>➻ Sᴛᴀʀᴛᴇᴅ Sᴛʀᴇᴀᴍɪɴɢ\n"
                     f"🎧 Sᴏᴜɴᴅ Ɛɴɢᴀɢᴇᴅ ┊ {escape(str(media.duration or '0:00'))} ◤"
