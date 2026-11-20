@@ -3,9 +3,8 @@
 # This file is part of AnonXMusic
 
 
-from html import escape
+from html import escape, unescape
 import re
-import unicodedata
 
 from ntgcalls import (ConnectionNotFound, TelegramServerError,
                       RTMPStreamingUnsupported, ConnectionError,
@@ -98,13 +97,8 @@ class TgCall(PyTgCalls):
                 title = escape(short_title)
                 url = escape(str(media.url or ""), quote=True)
                 raw_user = str(media.user or "Unknown")
-                raw_user = re.sub(r"<[^>]*>", "", raw_user)
-                raw_user = unicodedata.normalize("NFKD", raw_user)
-                raw_user = raw_user.translate(str.maketrans({
-                    "ᴅ": "d", "ι": "i", "ʈ": "t", "ʏ": "y", "ʌ": "a",
-                }))
-                played_by = re.sub(r"[^A-Za-z0-9 _.-]", "", raw_user).strip() or "Unknown"
-                played_by = escape(played_by)
+                raw_user = unescape(re.sub(r"<[^>]*>", "", raw_user)).strip()
+                played_by = escape(raw_user or "Unknown")
                 text = (
                     "<blockquote>➻ Sᴛᴀʀᴛᴇᴅ Sᴛʀᴇᴀᴍɪɴɢ\n"
                     f"🎧 Sᴏᴜɴᴅ Ɛɴɢᴀɢᴇᴅ ┊ {escape(str(media.duration or '0:00'))} ◤"
