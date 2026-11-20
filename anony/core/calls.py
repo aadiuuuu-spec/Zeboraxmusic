@@ -101,7 +101,7 @@ class TgCall(PyTgCalls):
                 raw_user = re.sub(r"<[^>]*>", "", raw_user)
                 raw_user = unicodedata.normalize("NFKD", raw_user)
                 raw_user = raw_user.translate(str.maketrans({
-                    "ᴅ": "d", "𝛊": "i", "ʈ": "t", "ʏ": "y", "ʌ": "a",
+                    "ᴅ": "d", "ι": "i", "ʈ": "t", "ʏ": "y", "ʌ": "a",
                 }))
                 played_by = re.sub(r"[^A-Za-z0-9 _.-]", "", raw_user).strip() or "Unknown"
                 played_by = escape(played_by)
