@@ -89,7 +89,7 @@ class Thumbnail:
         self.meta_font = _font("anony/helpers/Inter-Light.ttf", 35)
         self.views_font = _font("anony/helpers/Inter-Light.ttf", 31)
         self.time_font = _font("anony/helpers/Raleway-Bold.ttf", 28)
-        self.brand_font = _font("anony/helpers/Raleway-Bold.ttf", 25)
+        self.brand_font = _font("/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf", 25)
 
     async def start(self) -> None:
         self.session = aiohttp.ClientSession()
@@ -180,7 +180,7 @@ class Thumbnail:
 
             text_x = 600
             text_width = width - text_x - 55
-            draw.text((text_x, 75), "ZEBORAX  X  MUSIC",
+            draw.text((text_x, 75), "˹ᴢᴇʙᴏʀᴧ ꭙ мᴜsɪᴄ˼ ♪",
                       font=self.brand_font, fill=(*accent, 255))
             draw.ellipse((1080, 83, 1097, 100), fill=(*accent, 255))
             draw.text((1110, 76), "PLAYING", font=self.views_font,
