@@ -97,11 +97,11 @@ class TgCall(PyTgCalls):
                 url = escape(str(media.url or ""), quote=True)
                 played_by = escape(str(media.user or "Unknown"))
                 text = (
-                    "<blockquote>➻ Sᴛᴀʀᴛᴇᴅ Sᴛʀᴇᴀᴍɪɴɢ\\n"
+                    "<blockquote>➻ Sᴛᴀʀᴛᴇᴅ Sᴛʀᴇᴀᴍɪɴɢ\n"
                     f"🎧 Sᴏᴜɴᴅ Ɛɴɢᴀɢᴇᴅ ┊ {escape(str(media.duration or '0:00'))} ◤"
-                    "</blockquote>\\n\\n"
+                    "</blockquote>\n\n"
                     "<blockquote>"
-                    f"🎶 𝖳ɪᴛʟᴇ : <a href=\\\"{url}\\\">{title}</a>\\n"
+                    f'🎶 𝖳ɪᴛʟᴇ : <a href="{url}">{title}</a>\n'
                     f"✨ 𝖯ʟᴀʏᴇᴅ 𝖡ʏ : {played_by}"
                     "</blockquote>"
                 )
