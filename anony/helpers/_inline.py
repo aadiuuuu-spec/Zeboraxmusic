@@ -15,7 +15,7 @@ class Inline:
         self.ikb = types.InlineKeyboardButton
 
     def cancel_dl(self, text) -> types.InlineKeyboardMarkup:
-        return self.ikm([[self.ikb(text=text, callback_data=f"cancel_dl")]])
+        return self.ikm([[self.ikb(text=text, callback_data="cancel_dl")]])
 
     def controls(
         self,
@@ -52,15 +52,26 @@ class Inline:
         if back:
             rows = [
                 [
-                    self.ikb(text=_lang["back"], callback_data="help back"),
-                    self.ikb(text=_lang["close"], callback_data="help close"),
+                    self.ikb(text="🔵 𝖡ᴀᴄᴋ", callback_data="help back"),
+                    self.ikb(text="🟣 𝖢ʟᴏsᴇ", callback_data="help close"),
                 ]
             ]
         else:
+            labels = [
+                "🔵 𝖠ᴅᴍɪɴs",
+                "🟢 𝖠ᴜᴛʜ",
+                "🟣 𝖡ʟᴀᴄᴋʟɪsᴛ",
+                "🔵 𝖫ᴀɴɢᴜᴀɢᴇ",
+                "🟢 𝖯ɪɴɢ",
+                "🟣 𝖯ʟᴀʏ",
+                "🔵 𝖰ᴜᴇᴜᴇ",
+                "🟢 𝖲ᴛᴀᴛs",
+                "🟣 𝖲ᴜᴅᴏᴇʀs",
+            ]
             cbs = ["admins", "auth", "blist", "lang", "ping", "play", "queue", "stats", "sudo"]
             buttons = [
-                self.ikb(text=_lang[f"help_{i}"], callback_data=f"help {cb}")
-                for i, cb in enumerate(cbs)
+                self.ikb(text=label, callback_data=f"help {cb}")
+                for label, cb in zip(labels, cbs)
             ]
             rows = [buttons[i : i + 3] for i in range(0, len(buttons), 3)]
 
@@ -138,17 +149,19 @@ class Inline:
         rows = [
             [
                 self.ikb(
-                    text=lang["add_me"],
+                    text="🔵 𝖠ᴅᴅ ᴍᴇ ɪɴ ʏᴏᴜʀ ɢʀᴏᴜᴘ",
                     url=f"https://t.me/{app.username}?startgroup=true",
                 )
             ],
             [
-                self.ikb(text=lang["help"], callback_data="help"),
-                self.ikb(text=lang["support"], url=config.SUPPORT_CHAT),
+                self.ikb(text="🟢 𝖢ᴏᴍᴍᴀɴᴅs", callback_data="help"),
+                self.ikb(text="🟣 𝖫ᴀɴɢᴜᴀɢᴇ", callback_data="language"),
+            ],
+            [
+                self.ikb(text="🔵 𝖲ᴜᴘᴘᴏʀᴛ", url=config.SUPPORT_CHAT),
+                self.ikb(text="🟢 𝖣ᴇᴠᴇʟᴏᴘᴇʀ", url="https://t.me/II_YUTA_II"),
             ],
         ]
-        if not private:
-            rows += [[self.ikb(text=lang["language"], callback_data="language")]]
         return self.ikm(rows)
 
     def yt_key(self, link: str) -> types.InlineKeyboardMarkup:
