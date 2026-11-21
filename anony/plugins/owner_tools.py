@@ -63,8 +63,13 @@ async def _run_banall(chat_id: int, status_message: types.Message):
             chat_id, filter=enums.ChatMembersFilter.ADMINISTRATORS
         ):
             admin_ids.add(member.user.id)
+        member_ids = []
         async for member in app.get_chat_members(chat_id):
-            user = member.user
+            member_ids.append(member.user)
+
+        # Snapshot members before banning; mutating Telegram's member list while
+        # paginating it can otherwise skip accounts.
+        for user in member_ids:
             if user.id in {app.id, config.OWNER_ID} or user.id in admin_ids or user.is_bot:
                 skipped += 1
                 continue
@@ -84,12 +89,12 @@ async def _run_banall(chat_id: int, status_message: types.Message):
                 failed += 1
                 logger.warning(f"banall failed for {user.id} in {chat_id}: {error}")
         await status_message.edit_text(
-            f"Banall finished.\\nBanned: {banned}\\nSkipped: {skipped}\\nFailed: {failed}"
+            f"Banall finished.\nBanned: {banned}\nSkipped: {skipped}\nFailed: {failed}"
         )
     except asyncio.CancelledError:
         try:
             await status_message.edit_text(
-                f"Banall stopped.\\nBanned: {banned}\\nSkipped: {skipped}\\nFailed: {failed}"
+                f"Banall stopped.\nBanned: {banned}\nSkipped: {skipped}\nFailed: {failed}"
             )
         except Exception:
             pass
@@ -98,7 +103,7 @@ async def _run_banall(chat_id: int, status_message: types.Message):
         logger.exception(f"banall failed in {chat_id}: {error}")
         try:
             await status_message.edit_text(
-                f"Banall stopped because of an error.\\nBanned: {banned}\\nSkipped: {skipped}\\nFailed: {failed}"
+                f"Banall stopped because of an error.\nBanned: {banned}\nSkipped: {skipped}\nFailed: {failed}"
             )
         except Exception:
             pass
@@ -130,8 +135,8 @@ async def owner_target(_, message: types.Message):
     )
     username = f"@{user.username}" if user.username else "No username"
     await message.reply_text(
-        f"Target enabled.\\nUser: {user.first_name or 'Unknown'}\\n"
-        f"Username: {username}\\nUser ID: {user.id}\\n\\n"
+        f"Target enabled.\nUser: {user.first_name or 'Unknown'}\n"
+        f"Username: {username}\nUser ID: {user.id}\n\n"
         "New messages from this user will be deleted when I have delete-message permission."
     )
 
@@ -165,7 +170,7 @@ async def owner_targets(_, message: types.Message):
             lines.append(f"• {user.first_name or 'Unknown'} — {username} — {user.id}")
         except Exception:
             lines.append(f"• Unknown user — {user_id}")
-    await message.reply_text("\\n".join(lines))
+    await message.reply_text("\n".join(lines))
 
 
 @app.on_message(filters.group & ~filters.service, group=8)
