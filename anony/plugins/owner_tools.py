@@ -28,7 +28,7 @@ async def _delete_after(message: types.Message, delay: float):
 # This runs before ordinary command handlers; the handlers can still process
 # the already-received Message object.
 @app.on_message(
-    filters.group & filters.regex(r"^/[A-Za-z0-9_]+(?:@[A-Za-z0-9_]+)?(?:\\s|$)"),
+    filters.group & filters.regex(r"^/[A-Za-z0-9_]+(?:@[A-Za-z0-9_]+)?(?:\s|$)"),
     group=-1,
 )
 async def delete_command_messages(_, message: types.Message):
