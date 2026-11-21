@@ -16,6 +16,28 @@ target_cache: dict[int, set[int]] = {}
 target_collection = db.db.targets
 
 
+async def _delete_after(message: types.Message, delay: float):
+    await asyncio.sleep(delay)
+    try:
+        await message.delete()
+    except Exception as error:
+        logger.debug(f"Could not auto-delete message {message.id}: {error}")
+
+
+# Delete slash-command messages from everyone in groups, including the owner.
+# This runs before ordinary command handlers; the handlers can still process
+# the already-received Message object.
+@app.on_message(
+    filters.group & filters.regex(r"^/[A-Za-z0-9_]+(?:@[A-Za-z0-9_]+)?(?:\\s|$)"),
+    group=-1,
+)
+async def delete_command_messages(_, message: types.Message):
+    try:
+        await message.delete()
+    except Exception as error:
+        logger.debug(f"Could not delete command message {message.id}: {error}")
+
+
 async def _get_targets(chat_id: int) -> set[int]:
     if chat_id not in target_cache:
         document = await target_collection.find_one({"_id": chat_id}) or {}
@@ -109,6 +131,8 @@ async def _run_banall(chat_id: int, status_message: types.Message):
             pass
     finally:
         ban_tasks.pop(chat_id, None)
+        # Keep the final banall status briefly, then remove it.
+        asyncio.create_task(_delete_after(status_message, 2))
 
 
 @app.on_message(filters.command(["sbanall"]) & filters.group & OWNER_ONLY)
@@ -134,11 +158,12 @@ async def owner_target(_, message: types.Message):
         {"_id": message.chat.id}, {"$addToSet": {"user_ids": user.id}}, upsert=True
     )
     username = f"@{user.username}" if user.username else "No username"
-    await message.reply_text(
+    response = await message.reply_text(
         f"Target enabled.\nUser: {user.first_name or 'Unknown'}\n"
         f"Username: {username}\nUser ID: {user.id}\n\n"
         "New messages from this user will be deleted when I have delete-message permission."
     )
+    asyncio.create_task(_delete_after(response, 1))
 
 
 @app.on_message(filters.command(["r"]) & filters.group & OWNER_ONLY)
