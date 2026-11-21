@@ -3,7 +3,7 @@
 # This file is part of AnonXMusic
 
 
-from pyrogram import types
+from pyrogram import enums, types
 
 from anony import app, config, lang
 from anony.core.lang import lang_codes
@@ -52,26 +52,31 @@ class Inline:
         if back:
             rows = [
                 [
-                    self.ikb(text="🔵 𝖡ᴀᴄᴋ", callback_data="help back"),
-                    self.ikb(text="🩷 𝖢ʟᴏsᴇ", callback_data="help close"),
+                    self.ikb(text="𝖡ᴀᴄᴋ", callback_data="help back", style=enums.ButtonStyle.PRIMARY),
+                    self.ikb(text="𝖢ʟᴏsᴇ", callback_data="help close", style=enums.ButtonStyle.SUCCESS),
                 ]
             ]
         else:
             labels = [
-                "🔵 𝖠ᴅᴍɪɴs",
-                "🟢 𝖠ᴜᴛʜ",
-                "🩷 𝖡ʟᴀᴄᴋʟɪsᴛ",
-                "🔵 𝖫ᴀɴɢᴜᴀɢᴇ",
-                "🟢 𝖯ɪɴɢ",
-                "🩷 𝖯ʟᴀʏ",
-                "🔵 𝖰ᴜᴇᴜᴇ",
-                "🟢 𝖲ᴛᴀᴛs",
-                "🩷 𝖲ᴜᴅᴏᴇʀs",
+                "𝖠ᴅᴍɪɴs",
+                "𝖠ᴜᴛʜ",
+                "𝖡ʟᴀᴄᴋʟɪsᴛ",
+                "𝖫ᴀɴɢᴜᴀɢᴇ",
+                "𝖯ɪɴɢ",
+                "𝖯ʟᴀʏ",
+                "𝖰ᴜᴇᴜᴇ",
+                "𝖲ᴛᴀᴛs",
+                "𝖲ᴜᴅᴏᴇʀs",
             ]
             cbs = ["admins", "auth", "blist", "lang", "ping", "play", "queue", "stats", "sudo"]
+            styles = [enums.ButtonStyle.PRIMARY, enums.ButtonStyle.SUCCESS]
             buttons = [
-                self.ikb(text=label, callback_data=f"help {cb}")
-                for label, cb in zip(labels, cbs)
+                self.ikb(
+                    text=label,
+                    callback_data=f"help {cb}",
+                    style=styles[i % 2],
+                )
+                for i, (label, cb) in enumerate(zip(labels, cbs))
             ]
             rows = [buttons[i : i + 3] for i in range(0, len(buttons), 3)]
 
@@ -149,17 +154,18 @@ class Inline:
         rows = [
             [
                 self.ikb(
-                    text="🔵 𝖠ᴅᴅ ᴍᴇ ɪɴ ʏᴏᴜʀ ɢʀᴏᴜᴘ",
+                    text="𝖠ᴅᴅ ᴍᴇ ɪɴ ʏᴏᴜʀ ɢʀᴏᴜᴘ",
                     url=f"https://t.me/{app.username}?startgroup=true",
+                    style=enums.ButtonStyle.PRIMARY,
                 )
             ],
             [
-                self.ikb(text="🟢 𝖢ᴏᴍᴍᴀɴᴅs", callback_data="help"),
-                self.ikb(text="🩷 𝖫ᴀɴɢᴜᴀɢᴇ", callback_data="language"),
+                self.ikb(text="𝖢ᴏᴍᴍᴀɴᴅs", callback_data="help", style=enums.ButtonStyle.SUCCESS),
+                self.ikb(text="𝖫ᴀɴɢᴜᴀɢᴇ", callback_data="language", style=enums.ButtonStyle.PRIMARY),
             ],
             [
-                self.ikb(text="🔵 𝖲ᴜᴘᴘᴏʀᴛ", url=config.SUPPORT_CHAT),
-                self.ikb(text="🟢 𝖣ᴇᴠᴇʟᴏᴘᴇʀ", url="https://t.me/II_YUTA_II"),
+                self.ikb(text="𝖲ᴜᴘᴘᴏʀᴛ", url=config.SUPPORT_CHAT, style=enums.ButtonStyle.SUCCESS),
+                self.ikb(text="𝖣ᴇᴠᴇʟᴏᴘᴇʀ", url="https://t.me/II_YUTA_II", style=enums.ButtonStyle.PRIMARY),
             ],
         ]
         return self.ikm(rows)
