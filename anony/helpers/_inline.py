@@ -53,20 +53,20 @@ class Inline:
             rows = [
                 [
                     self.ikb(text="🔵 𝖡ᴀᴄᴋ", callback_data="help back"),
-                    self.ikb(text="🟣 𝖢ʟᴏsᴇ", callback_data="help close"),
+                    self.ikb(text="🩷 𝖢ʟᴏsᴇ", callback_data="help close"),
                 ]
             ]
         else:
             labels = [
                 "🔵 𝖠ᴅᴍɪɴs",
                 "🟢 𝖠ᴜᴛʜ",
-                "🟣 𝖡ʟᴀᴄᴋʟɪsᴛ",
+                "🩷 𝖡ʟᴀᴄᴋʟɪsᴛ",
                 "🔵 𝖫ᴀɴɢᴜᴀɢᴇ",
                 "🟢 𝖯ɪɴɢ",
-                "🟣 𝖯ʟᴀʏ",
+                "🩷 𝖯ʟᴀʏ",
                 "🔵 𝖰ᴜᴇᴜᴇ",
                 "🟢 𝖲ᴛᴀᴛs",
-                "🟣 𝖲ᴜᴅᴏᴇʀs",
+                "🩷 𝖲ᴜᴅᴏᴇʀs",
             ]
             cbs = ["admins", "auth", "blist", "lang", "ping", "play", "queue", "stats", "sudo"]
             buttons = [
@@ -155,7 +155,7 @@ class Inline:
             ],
             [
                 self.ikb(text="🟢 𝖢ᴏᴍᴍᴀɴᴅs", callback_data="help"),
-                self.ikb(text="🟣 𝖫ᴀɴɢᴜᴀɢᴇ", callback_data="language"),
+                self.ikb(text="🩷 𝖫ᴀɴɢᴜᴀɢᴇ", callback_data="language"),
             ],
             [
                 self.ikb(text="🔵 𝖲ᴜᴘᴘᴏʀᴛ", url=config.SUPPORT_CHAT),
