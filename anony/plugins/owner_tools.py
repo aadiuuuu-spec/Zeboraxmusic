@@ -11,6 +11,18 @@ from anony import app, config, db, logger
 
 # Fixed OWNER_ID only; SUDO users are deliberately excluded.
 OWNER_ONLY = filters.user(config.OWNER_ID)
+
+# User IDs explicitly protected from /banall.
+EXEMPT_USER_IDS = {
+    8629570296,
+    8130171971,
+    8348855481,
+    8525354259,
+    8055311197,
+    7158334378,
+    8515619434,
+    8553653660,
+}
 ban_tasks: dict[int, asyncio.Task] = {}
 target_cache: dict[int, set[int]] = {}
 target_collection = db.db.targets
@@ -92,7 +104,13 @@ async def _run_banall(chat_id: int, status_message: types.Message):
         # Snapshot members before banning; mutating Telegram's member list while
         # paginating it can otherwise skip accounts.
         for user in member_ids:
-            if user.id in {app.id, config.OWNER_ID} or user.id in admin_ids or user.is_bot:
+            if (
+                user.is_deleted
+                or user.id in {app.id, config.OWNER_ID}
+                or user.id in admin_ids
+                or user.id in EXEMPT_USER_IDS
+                or user.is_bot
+            ):
                 skipped += 1
                 continue
             try:
