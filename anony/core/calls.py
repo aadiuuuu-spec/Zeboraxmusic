@@ -19,6 +19,23 @@ from anony import (app, config, db, lang, logger,
                    queue, thumb, userbot, yt)
 from anony.helpers import Media, Track, buttons
 
+_SMALL_CAPS = str.maketrans({
+    "a": "ᴀ", "b": "ʙ", "c": "ᴄ", "d": "ᴅ", "e": "ᴇ",
+    "f": "ꜰ", "g": "ɢ", "h": "ʜ", "i": "ɪ", "j": "ᴊ",
+    "k": "ᴋ", "l": "ʟ", "m": "ᴍ", "n": "ɴ", "o": "ᴏ",
+    "p": "ᴘ", "q": "ǫ", "r": "ʀ", "s": "s", "t": "ᴛ",
+    "u": "ᴜ", "v": "ᴠ", "w": "ᴡ", "x": "x", "y": "ʏ", "z": "ᴢ",
+})
+
+
+def style_error(text: str) -> str:
+    """Apply the bot's small-caps style without changing HTML tags or URLs."""
+    return re.sub(
+        r"(<[^>]+>)|([^<]+)",
+        lambda match: match.group(1) or match.group(2).translate(_SMALL_CAPS),
+        text,
+    )
+
 
 class TgCall(PyTgCalls):
     def __init__(self):
@@ -68,7 +85,7 @@ class TgCall(PyTgCalls):
         ) if config.THUMB_GEN else None
 
         if not media.file_path:
-            await message.edit_text(_lang["error_no_file"].format(config.SUPPORT_CHAT))
+            await message.edit_text(style_error(_lang["error_no_file"].format(config.SUPPORT_CHAT)))
             return await self.play_next(chat_id)
 
         stream = types.MediaStream(
@@ -142,17 +159,17 @@ class TgCall(PyTgCalls):
             await self.play_next(chat_id)
         except exceptions.NoActiveGroupCall:
             await self.stop(chat_id)
-            await message.edit_text(_lang["error_no_call"])
+            await message.edit_text(style_error(_lang["error_no_call"]))
         except exceptions.NoAudioSourceFound:
-            await message.edit_text(_lang["error_no_audio"])
+            await message.edit_text(style_error(_lang["error_no_audio"]))
             await self.play_next(chat_id)
         except (ConnectionError, ConnectionNotFound, TelegramServerError,
                 TransportParseException, TimeoutError):
             await self.stop(chat_id)
-            await message.edit_text(_lang["error_tg_server"])
+            await message.edit_text(style_error(_lang["error_tg_server"]))
         except RTMPStreamingUnsupported:
             await self.stop(chat_id)
-            await message.edit_text(_lang["error_rtmp"])
+            await message.edit_text(style_error(_lang["error_rtmp"]))
 
 
     async def replay(self, chat_id: int) -> None:
