@@ -106,16 +106,18 @@ class YouTube:
         video: bool = False,
         max_duration: int = 3600,
     ) -> Track | None:
-        """Find a different, playable track related to the previous song."""
+        """Find a random eligible related track not played recently."""
         excluded = set(exclude_ids or ())
         queries = [
             f"{title} {channel}".strip(),
             f"songs similar to {title}".strip(),
             f"{title} related songs".strip(),
+            f"more songs like {title}".strip(),
         ]
+        candidates = {}
         for query in queries:
             try:
-                search = VideosSearch(query, limit=5, with_live=False)
+                search = VideosSearch(query, limit=10, with_live=False)
                 results = await search.next()
             except Exception as error:
                 logger.warning(f"Autoplay search failed for query {query!r}: {error}")
@@ -145,7 +147,7 @@ class YouTube:
                     (thumbnails[-1].get("url") or "").split("?")[0]
                     if thumbnails else None
                 )
-                return Track(
+                candidates[video_id] = Track(
                     id=video_id,
                     channel_name=(data.get("channel") or {}).get("name"),
                     duration=duration,
@@ -155,7 +157,10 @@ class YouTube:
                     url=data.get("link"),
                     video=video,
                 )
-        return None
+
+        if not candidates:
+            return None
+        return random.choice(list(candidates.values()))
 
     async def playlist(self, limit: int, user: str, url: str, video: bool) -> list[Track | None]:
         tracks = []
