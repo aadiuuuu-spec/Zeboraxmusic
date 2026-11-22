@@ -192,21 +192,33 @@ class TgCall(PyTgCalls):
         media = queue.get_next(chat_id)
 
         if previous and await db.get_autoplay(chat_id):
-            channel = getattr(previous, "channel_name", None) or ""
             title = str(previous.title or "").strip()
-            query = f"songs like {title} {channel}".strip()
-            related = await yt.search(query, 0, video=previous.video) if title else None
             queued_ids = {item.id for item in queue.get_queue(chat_id)}
-            if (
-                related
-                and related.id != previous.id
-                and related.id not in queued_ids
-                and related.duration_sec <= config.DURATION_LIMIT
-            ):
-                related.user = previous.user or "AutoPlay"
+            excluded_ids = queued_ids | {previous.id}
+            related = (
+                await yt.search_related(
+                    title,
+                    channel=getattr(previous, "channel_name", None) or "",
+                    exclude_ids=excluded_ids,
+                    video=previous.video,
+                    max_duration=config.DURATION_LIMIT,
+                )
+                if title else None
+            )
+            if related:
+                related.user = "AutoPlay"
                 queue.add(chat_id, related)
+                logger.info(
+                    f"Autoplay selected related track {related.title!r} "
+                    f"({related.id}) for chat {chat_id}"
+                )
                 if media is None:
                     media = related
+            else:
+                logger.warning(
+                    f"Autoplay found no eligible related track for "
+                    f"{title!r} in chat {chat_id}"
+                )
 
         try:
             if media.message_id:
