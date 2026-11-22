@@ -126,6 +126,23 @@ async def _run_banall(chat_id: int, status_message: types.Message):
                     logger.warning(
                         f"banall FloodWait in {chat_id}; waiting {wait_seconds}s before retry"
                     )
+                    minutes, seconds = divmod(wait_seconds, 60)
+                    wait_label = f"{minutes}m {seconds}s" if minutes else f"{seconds}s"
+                    try:
+                        chat = await app.get_chat(chat_id)
+                        group_name = chat.title or str(chat_id)
+                        await app.send_message(
+                            config.OWNER_ID,
+                            "⚠️ **Banall FloodWait detected**\\n\\n"
+                            f"**Group:** {group_name}\\n"
+                            f"**Group ID:** {chat_id}\\n"
+                            f"**Wait required:** {wait_label}\\n"
+                            "**Retrying:** Automatically after the wait."
+                        )
+                    except Exception as notify_error:
+                        logger.warning(
+                            f"Could not DM owner about banall FloodWait in {chat_id}: {notify_error}"
+                        )
                     await asyncio.sleep(wait_seconds)
                 except Exception as error:
                     failed += 1
