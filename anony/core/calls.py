@@ -189,6 +189,8 @@ class TgCall(PyTgCalls):
             return await self.replay(chat_id)
 
         previous = queue.get_current(chat_id)
+        if previous:
+            queue.remember_played(chat_id, previous.id)
         media = queue.get_next(chat_id)
 
         # Always play user-requested queue items first. Generate an autoplay
@@ -196,7 +198,7 @@ class TgCall(PyTgCalls):
         if previous and media is None and await db.get_autoplay(chat_id):
             title = str(previous.title or "").strip()
             queued_ids = {item.id for item in queue.get_queue(chat_id)}
-            excluded_ids = queued_ids | {previous.id}
+            excluded_ids = queued_ids | queue.recent_ids(chat_id) | {previous.id}
             related = (
                 await yt.search_related(
                     title,
