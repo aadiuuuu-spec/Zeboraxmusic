@@ -25,6 +25,7 @@ class MongoDB:
         self.blacklisted = []
         self.cmd_delete = []
         self.loop = {}
+        self.autoplay = {}
         self.notified = []
         self.cache = self.db.cache
         self.logger = False
@@ -90,6 +91,18 @@ class MongoDB:
 
     async def set_loop(self, chat_id: int, count: int) -> None:
         self.loop[chat_id] = count
+
+    async def get_autoplay(self, chat_id: int) -> bool:
+        if chat_id not in self.autoplay:
+            doc = await self.chatsdb.find_one({"_id": chat_id})
+            self.autoplay[chat_id] = bool(doc.get("autoplay", False)) if doc else False
+        return self.autoplay[chat_id]
+
+    async def set_autoplay(self, chat_id: int, enabled: bool) -> None:
+        self.autoplay[chat_id] = enabled
+        await self.chatsdb.update_one(
+            {"_id": chat_id}, {"$set": {"autoplay": enabled}}, upsert=True
+        )
 
     # AUTH METHODS
     async def _get_auth(self, chat_id: int) -> set[int]:
