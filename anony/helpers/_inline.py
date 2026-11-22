@@ -115,6 +115,22 @@ class Inline:
             ]
         )
 
+    def autoplay_markup(self, chat_id: int) -> types.InlineKeyboardMarkup:
+        return self.ikm(
+            [[
+                self.ikb(
+                    text="ENABLE",
+                    callback_data=f"autoplay enable {chat_id}",
+                    style=enums.ButtonStyle.PRIMARY,
+                ),
+                self.ikb(
+                    text="DISABLE",
+                    callback_data=f"autoplay disable {chat_id}",
+                    style=enums.ButtonStyle.DANGER,
+                ),
+            ]]
+        )
+
     def queue_markup(
         self, chat_id: int, _text: str, playing: bool
     ) -> types.InlineKeyboardMarkup:
