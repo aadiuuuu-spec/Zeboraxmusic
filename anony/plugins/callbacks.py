@@ -131,6 +131,26 @@ async def _controls(_, query: types.CallbackQuery):
         pass
 
 
+@app.on_callback_query(filters.regex(r"^autoplay (enable|disable) ") & ~app.bl_users)
+@lang.language()
+@can_manage_vc
+async def _autoplay_toggle(_, query: types.CallbackQuery):
+    action, chat_id = query.data.split()[1:]
+    chat_id = int(chat_id)
+    enabled = action == "enable"
+    await db.set_autoplay(chat_id, enabled)
+    status = "ᴇɴᴀʙʟᴇᴅ" if enabled else "ᴅɪsᴀʙʟᴇᴅ"
+    text = (
+        "<blockquote>⚡ <b>ᴀᴜᴛᴏᴘʟᴀʏ sᴇᴛᴛɪɴɢs</b>\\n\\n"
+        f"ᴀᴜᴛᴏᴘʟᴀʏ ɪs ᴄᴜʀʀᴇɴᴛʟʏ <b>{status}</b>."
+        "</blockquote>"
+    )
+    await query.answer("Autoplay enabled" if enabled else "Autoplay disabled")
+    await query.edit_message_text(
+        text, reply_markup=buttons.autoplay_markup(chat_id)
+    )
+
+
 @app.on_callback_query(filters.regex("help") & ~app.bl_users)
 @lang.language()
 async def _help(_, query: types.CallbackQuery):
