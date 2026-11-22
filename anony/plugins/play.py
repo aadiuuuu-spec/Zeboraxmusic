@@ -101,7 +101,6 @@ async def play_hndlr(
                     position,
                     file.url,
                     file.title,
-                    file.duration,
                     m.from_user.mention,
                 ),
                 reply_markup=buttons.play_queued(
