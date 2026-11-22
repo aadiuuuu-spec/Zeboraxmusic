@@ -19,7 +19,9 @@ _SMALL_CAPS = str.maketrans({
 
 
 def _styled(text: str) -> str:
-    return text.translate(_SMALL_CAPS)
+    # Some locale strings may contain escaped newline characters (\\n)
+    # instead of real line breaks. Normalize them before sending to Telegram.
+    return text.replace("\\\\n", "\n").replace("\\n", "\n").translate(_SMALL_CAPS)
 
 
 @app.on_message(filters.command(["autoplay"]) & filters.group & ~app.bl_users)
