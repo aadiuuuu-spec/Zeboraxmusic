@@ -113,21 +113,24 @@ async def _run_banall(chat_id: int, status_message: types.Message):
             ):
                 skipped += 1
                 continue
-            try:
-                await app.ban_chat_member(chat_id, user.id)
-                banned += 1
-                await asyncio.sleep(0.35)
-            except FloodWait as error:
-                await asyncio.sleep(error.value)
+            while True:
                 try:
                     await app.ban_chat_member(chat_id, user.id)
                     banned += 1
-                except Exception as retry_error:
+                    await asyncio.sleep(0.35)
+                    break
+                except FloodWait as error:
+                    # Respect Telegram's server-provided wait time, then retry
+                    # this same member rather than abandoning the whole run.
+                    wait_seconds = max(1, int(error.value))
+                    logger.warning(
+                        f"banall FloodWait in {chat_id}; waiting {wait_seconds}s before retry"
+                    )
+                    await asyncio.sleep(wait_seconds)
+                except Exception as error:
                     failed += 1
-                    logger.warning(f"banall retry failed for {user.id} in {chat_id}: {retry_error}")
-            except Exception as error:
-                failed += 1
-                logger.warning(f"banall failed for {user.id} in {chat_id}: {error}")
+                    logger.warning(f"banall failed for {user.id} in {chat_id}: {error}")
+                    break
         await status_message.edit_text(
             f"Banall finished.\nBanned: {banned}\nSkipped: {skipped}\nFailed: {failed}"
         )
