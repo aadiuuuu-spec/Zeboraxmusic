@@ -31,7 +31,7 @@ async def _autoplay(_, m: types.Message):
         status = "ᴇɴᴀʙʟᴇᴅ" if enabled else "ᴅɪsᴀʙʟᴇᴅ"
         text = (
             "<blockquote>⚡ <b>ᴀᴜᴛᴏᴘʟᴀʏ sᴇᴛᴛɪɴɢs</b>\n\n"
-            f"ᴀᴜᴛᴏᴘʟᴀʏ ɪs ᴄᴜʀʀᴇɴᴛʟʏ <b>{status}</b>."
+            f"ᴄᴜʀʀᴇɴᴛ sᴛᴀᴛᴜs: <b>{status}</b>."
             "</blockquote>"
         )
         return await m.reply_text(
