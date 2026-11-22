@@ -3,10 +3,23 @@
 # This file is part of AnonXMusic
 
 
-from pyrogram import filters, types
+from pyrogram import enums, filters, types
 
 from anony import app, db, lang
-from anony.helpers import can_manage_vc
+from anony.helpers import buttons, can_manage_vc
+
+
+_SMALL_CAPS = str.maketrans({
+    "a": "ᴀ", "b": "ʙ", "c": "ᴄ", "d": "ᴅ", "e": "ᴇ",
+    "f": "ꜰ", "g": "ɢ", "h": "ʜ", "i": "ɪ", "j": "ᴊ",
+    "k": "ᴋ", "l": "ʟ", "m": "ᴍ", "n": "ɴ", "o": "ᴏ",
+    "p": "ᴘ", "q": "ǫ", "r": "ʀ", "s": "s", "t": "ᴛ",
+    "u": "ᴜ", "v": "ᴠ", "w": "ᴡ", "x": "x", "y": "ʏ", "z": "ᴢ",
+})
+
+
+def _styled(text: str) -> str:
+    return text.translate(_SMALL_CAPS)
 
 
 @app.on_message(filters.command(["autoplay"]) & filters.group & ~app.bl_users)
@@ -14,14 +27,27 @@ from anony.helpers import can_manage_vc
 @can_manage_vc
 async def _autoplay(_, m: types.Message):
     if len(m.command) == 1:
-        key = "autoplay_status_on" if await db.get_autoplay(m.chat.id) else "autoplay_status_off"
-        return await m.reply_text(m.lang[key])
+        enabled = await db.get_autoplay(m.chat.id)
+        status = "ᴇɴᴀʙʟᴇᴅ" if enabled else "ᴅɪsᴀʙʟᴇᴅ"
+        text = (
+            "<blockquote>⚡ <b>ᴀᴜᴛᴏᴘʟᴀʏ sᴇᴛᴛɪɴɢs</b>\n\n"
+            f"ᴀᴜᴛᴏᴘʟᴀʏ ɪs ᴄᴜʀʀᴇɴᴛʟʏ <b>{status}</b>."
+            "</blockquote>"
+        )
+        return await m.reply_text(
+            text, reply_markup=buttons.autoplay_markup(m.chat.id)
+        )
 
     value = m.command[1].lower()
     if value not in ["on", "off"]:
-        return await m.reply_text(m.lang["autoplay_usage"])
+        return await m.reply_text(
+            _styled(m.lang["autoplay_usage"]),
+            reply_markup=buttons.autoplay_markup(m.chat.id),
+        )
 
     enabled = value == "on"
     await db.set_autoplay(m.chat.id, enabled)
     key = "autoplay_on" if enabled else "autoplay_off"
-    await m.reply_text(m.lang[key])
+    return await m.reply_text(
+        _styled(m.lang[key]), reply_markup=buttons.autoplay_markup(m.chat.id)
+    )
