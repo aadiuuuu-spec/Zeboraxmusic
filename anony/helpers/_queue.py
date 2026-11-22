@@ -14,6 +14,7 @@ MediaItem = Union[Media, Track]
 class Queue:
     def __init__(self):
         self.queues: dict[int, deque[MediaItem]] = defaultdict(deque)
+        self.played: dict[int, deque[str]] = defaultdict(lambda: deque(maxlen=20))
 
     def add(self, chat_id: int, item: MediaItem) -> int:
         """Add an item to the queue and return its position (1-based)."""
@@ -66,6 +67,19 @@ class Queue:
         if self.queues[chat_id]:
             self.queues[chat_id].popleft()
 
+    def remember_played(self, chat_id: int, item_id: str | None) -> None:
+        """Remember recently played IDs to prevent autoplay repeats."""
+        if item_id:
+            history = self.played[chat_id]
+            if item_id in history:
+                history.remove(item_id)
+            history.append(item_id)
+
+    def recent_ids(self, chat_id: int) -> set[str]:
+        """Return IDs from the recent-play history."""
+        return set(self.played[chat_id])
+
     def clear(self, chat_id: int) -> None:
-        """Clear the entire queue."""
+        """Clear the queue and its recent-play history."""
         self.queues[chat_id].clear()
+        self.played.pop(chat_id, None)
