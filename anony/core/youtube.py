@@ -98,6 +98,58 @@ class YouTube:
             )
         return None
 
+    async def search_related(
+        self,
+        title: str,
+        channel: str = "",
+        exclude_ids: set[str] | None = None,
+        video: bool = False,
+        max_duration: int = 3600,
+    ) -> Track | None:
+        """Find a different, playable track related to the previous song."""
+        excluded = set(exclude_ids or ())
+        queries = [
+            f"{title} {channel}".strip(),
+            f"songs similar to {title}".strip(),
+            f"{title} related songs".strip(),
+        ]
+        for query in queries:
+            try:
+                search = VideosSearch(query, limit=5, with_live=False)
+                results = await search.next()
+            except Exception as error:
+                logger.warning(f"Autoplay search failed for query {query!r}: {error}")
+                continue
+
+            for data in (results or {}).get("result", []):
+                video_id = data.get("id")
+                duration = data.get("duration")
+                duration_sec = utils.to_seconds(duration) if duration else 0
+                if (
+                    not video_id
+                    or video_id in excluded
+                    or not duration_sec
+                    or duration_sec > max_duration
+                ):
+                    continue
+
+                thumbnails = data.get("thumbnails") or []
+                thumbnail = (
+                    (thumbnails[-1].get("url") or "").split("?")[0]
+                    if thumbnails else None
+                )
+                return Track(
+                    id=video_id,
+                    channel_name=(data.get("channel") or {}).get("name"),
+                    duration=duration,
+                    duration_sec=duration_sec,
+                    title=data.get("title"),
+                    thumbnail=thumbnail,
+                    url=data.get("link"),
+                    video=video,
+                )
+        return None
+
     async def playlist(self, limit: int, user: str, url: str, video: bool) -> list[Track | None]:
         tracks = []
         try:
