@@ -205,8 +205,8 @@ class TgCall(PyTgCalls):
             ):
                 related.user = previous.user or "AutoPlay"
                 queue.add(chat_id, related)
-            if media is None:
-                media = queue.get_next(chat_id)
+                if media is None:
+                    media = related
 
         try:
             if media.message_id:
