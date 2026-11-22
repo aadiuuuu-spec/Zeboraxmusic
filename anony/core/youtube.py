@@ -106,16 +106,36 @@ class YouTube:
         video: bool = False,
         max_duration: int = 3600,
     ) -> Track | None:
-        """Find a random eligible related track not played recently."""
+        """Find a different song, filtering covers and alternate versions."""
         excluded = set(exclude_ids or ())
-        queries = [
-            f"{title} {channel}".strip(),
-            f"songs similar to {title}".strip(),
-            f"{title} related songs".strip(),
-            f"more songs like {title}".strip(),
-        ]
+        queries = []
+        if channel:
+            queries.extend([
+                f"popular songs by {channel}",
+                f"best songs by {channel}",
+                f"artists similar to {channel} songs",
+            ])
+        queries.extend([
+            f"songs similar to {title}",
+            f"music like {title}",
+        ])
+
+        def title_words(value: str) -> set[str]:
+            value = re.sub(r"\([^)]*\)|\[[^]]*\]", " ", value.lower())
+            value = re.sub(
+                r"\b(official|audio|video|lyrics?|lyrical|remix|cover|version|"
+                r"slowed|reverb| sped up|live|4k|hd|visualizer|status)\b",
+                " ",
+                value,
+            )
+            return {
+                word for word in re.findall(r"[a-z0-9]+", value)
+                if word not in {"the", "a", "an", "song", "from", "movie"}
+            }
+
+        original_words = title_words(title)
         candidates = {}
-        for query in queries:
+        for query in dict.fromkeys(queries):
             try:
                 search = VideosSearch(query, limit=10, with_live=False)
                 results = await search.next()
@@ -125,6 +145,16 @@ class YouTube:
 
             for data in (results or {}).get("result", []):
                 video_id = data.get("id")
+                result_title = data.get("title") or ""
+                result_words = title_words(result_title)
+                overlap = (
+                    len(original_words & result_words)
+                    / max(1, min(len(original_words), len(result_words)))
+                )
+                # Reject covers/remixes/alternate uploads of the same named song.
+                if len(original_words) >= 2 and overlap >= 0.6:
+                    continue
+
                 duration = data.get("duration")
                 try:
                     duration_sec = utils.to_seconds(duration) if duration else 0
@@ -152,7 +182,7 @@ class YouTube:
                     channel_name=(data.get("channel") or {}).get("name"),
                     duration=duration,
                     duration_sec=duration_sec,
-                    title=data.get("title"),
+                    title=result_title,
                     thumbnail=thumbnail,
                     url=data.get("link"),
                     video=video,
