@@ -124,7 +124,14 @@ class YouTube:
             for data in (results or {}).get("result", []):
                 video_id = data.get("id")
                 duration = data.get("duration")
-                duration_sec = utils.to_seconds(duration) if duration else 0
+                try:
+                    duration_sec = utils.to_seconds(duration) if duration else 0
+                except (TypeError, ValueError):
+                    logger.warning(
+                        f"Autoplay skipped result with invalid duration: {duration!r}"
+                    )
+                    continue
+
                 if (
                     not video_id
                     or video_id in excluded
