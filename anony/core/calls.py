@@ -222,6 +222,11 @@ class TgCall(PyTgCalls):
                     f"{title!r} in chat {chat_id}"
                 )
 
+        # The queue can be empty when autoplay is disabled or when no
+        # related track is found. Check before reading media.message_id.
+        if media is None:
+            return await self.stop(chat_id)
+
         try:
             if media.message_id:
                 await app.delete_messages(
@@ -232,9 +237,6 @@ class TgCall(PyTgCalls):
                 media.message_id = 0
         except Exception:
             pass
-
-        if not media:
-            return await self.stop(chat_id)
 
         _lang = await lang.get_lang(chat_id)
         msg = await app.send_message(chat_id=chat_id, text=_lang["play_next"])
