@@ -108,7 +108,8 @@ class Inline:
             [
                 [
                     self.ikb(
-                        text=_text, callback_data=f"controls force {chat_id} {item_id}"
+                        text=_text, callback_data=f"controls force {chat_id} {item_id}",
+                        style=enums.ButtonStyle.DANGER,
                     )
                 ]
             ]
