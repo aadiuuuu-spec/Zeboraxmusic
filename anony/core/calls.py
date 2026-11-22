@@ -191,7 +191,9 @@ class TgCall(PyTgCalls):
         previous = queue.get_current(chat_id)
         media = queue.get_next(chat_id)
 
-        if previous and await db.get_autoplay(chat_id):
+        # Always play user-requested queue items first. Generate an autoplay
+        # recommendation only when the user queue is empty.
+        if previous and media is None and await db.get_autoplay(chat_id):
             title = str(previous.title or "").strip()
             queued_ids = {item.id for item in queue.get_queue(chat_id)}
             excluded_ids = queued_ids | {previous.id}
