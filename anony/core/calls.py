@@ -188,7 +188,26 @@ class TgCall(PyTgCalls):
             await db.set_loop(chat_id, loop - 1)
             return await self.replay(chat_id)
 
+        previous = queue.get_current(chat_id)
         media = queue.get_next(chat_id)
+
+        if previous and await db.get_autoplay(chat_id):
+            channel = getattr(previous, "channel_name", None) or ""
+            title = str(previous.title or "").strip()
+            query = f"songs like {title} {channel}".strip()
+            related = await yt.search(query, 0, video=previous.video) if title else None
+            queued_ids = {item.id for item in queue.get_queue(chat_id)}
+            if (
+                related
+                and related.id != previous.id
+                and related.id not in queued_ids
+                and related.duration_sec <= config.DURATION_LIMIT
+            ):
+                related.user = previous.user or "AutoPlay"
+                queue.add(chat_id, related)
+            if media is None:
+                media = queue.get_next(chat_id)
+
         try:
             if media.message_id:
                 await app.delete_messages(
