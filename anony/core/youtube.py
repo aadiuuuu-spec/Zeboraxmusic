@@ -7,6 +7,7 @@ import os
 import re
 import yt_dlp
 import random
+from difflib import SequenceMatcher
 import asyncio
 import aiohttp
 from pathlib import Path
@@ -175,8 +176,17 @@ class YouTube:
                     len(original_words & result_words)
                     / max(1, min(len(original_words), len(result_words)))
                 )
-                # Same-name uploads are usually covers, remasters or alternate edits.
-                if len(original_words) >= 2 and overlap >= 0.55:
+                normalized_original = " ".join(sorted(original_words))
+                normalized_result = " ".join(sorted(result_words))
+                title_similarity = SequenceMatcher(
+                    None, normalized_original, normalized_result
+                ).ratio()
+
+                # Reject alternate uploads AND near-identical song names.
+                # Example: "Chand Waaliyan" vs "Chandigarh Waaliyan".
+                if len(original_words) >= 2 and (
+                    overlap >= 0.50 or title_similarity >= 0.62
+                ):
                     continue
 
                 duration = data.get("duration")
