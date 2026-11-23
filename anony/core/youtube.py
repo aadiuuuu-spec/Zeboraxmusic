@@ -106,13 +106,9 @@ class YouTube:
         exclude_ids: set[str] | None = None,
         video: bool = False,
         max_duration: int = 3600,
+        current_id: str | None = None,
     ) -> Track | None:
-        """Find a fresh, title-relevant song without relying on uploader names.
-
-        YouTube's channel field is the uploader/label, not necessarily the
-        performing artist. Searching "popular songs by <channel>" can therefore
-        jump to unrelated catalogue tracks (for example, an entire label).
-        """
+        """Find related tracks using YouTube Mix first, then scored search results."""
         excluded = set(exclude_ids or ())
 
         def title_words(value: str) -> set[str]:
@@ -121,32 +117,46 @@ class YouTube:
                 r"\b(official|audio|video|lyrics?|lyrical|remix|cover|version|"
                 r"slowed|reverb|sped\s*up|live|4k|hd|visualizer|status|"
                 r"karaoke|instrumental|nightcore|loop|reaction)\b",
-                " ",
-                value,
+                " ", value,
             )
             return {
                 word for word in re.findall(r"[a-z0-9]+", value)
                 if word not in {"the", "a", "an", "song", "from", "movie"}
             }
 
+        def artist_hint(value: str) -> str:
+            cleaned = re.sub(r"\([^)]*\)|\[[^]]*\]", " ", value)
+            parts = re.split(r"\s(?:-|—|\|)\s", cleaned)
+            if len(parts) < 2:
+                return ""
+            candidate = re.sub(
+                r"\b(official|audio|video|lyrics?|lyrical|full song|hd|4k)\b",
+                " ", parts[-1], flags=re.IGNORECASE,
+            ).strip(" -_|.,")
+            if 3 <= len(candidate) <= 45 and len(candidate.split()) <= 5:
+                return candidate
+            return ""
+
         original_words = title_words(title)
         clean_title = re.sub(r"\([^)]*\)|\[[^]]*\]", " ", title)
         clean_title = re.sub(
             r"\b(official|audio|video|lyrics?|lyrical|full\s*song)\b",
-            " ",
-            clean_title,
-            flags=re.IGNORECASE,
+            " ", clean_title, flags=re.IGNORECASE,
         )
         clean_title = re.sub(r"\s+", " ", clean_title).strip(" -|")
         if not clean_title:
             return None
 
-        # Search around the actual track, not its YouTube uploader/record label.
-        queries = [
+        artist = artist_hint(title)
+        queries = []
+        if artist:
+            queries.append(f"songs similar to {artist}")
+        queries.extend([
             f"songs like {clean_title}",
             f"similar songs to {clean_title}",
             f"{clean_title} radio mix",
-        ]
+        ])
+
         rejected_versions = re.compile(
             r"\b(cover|karaoke|instrumental|remix|slowed|reverb|sped\s*up|"
             r"nightcore|8d|bass\s*boosted|reaction|lyrics?\s*video|"
@@ -154,82 +164,111 @@ class YouTube:
             re.IGNORECASE,
         )
 
-        candidates = {}
+        source_batches = []
+        if current_id:
+            try:
+                mix_url = f"{self.base}{current_id}&list=RD{current_id}"
+                mix = await asyncio.wait_for(Playlist.get(mix_url), timeout=10)
+                for rank, data in enumerate((mix or {}).get("videos", [])[:25]):
+                    source_batches.append((data, -1, rank, "mix"))
+            except asyncio.CancelledError:
+                raise
+            except Exception as error:
+                logger.debug(f"YouTube Mix lookup unavailable for autoplay: {error}")
+
         for query_index, query in enumerate(queries):
             try:
                 search = VideosSearch(query, limit=10, with_live=False)
                 results = await search.next()
+            except asyncio.CancelledError:
+                raise
             except Exception as error:
                 logger.warning(f"Autoplay search failed for query {query!r}: {error}")
                 continue
-
             for rank, data in enumerate((results or {}).get("result", [])):
-                video_id = data.get("id")
-                result_title = (data.get("title") or "").strip()
-                if not video_id or video_id in excluded or not result_title:
-                    continue
-                if rejected_versions.search(result_title):
-                    continue
+                source_batches.append((data, query_index, rank, "search"))
 
-                result_words = title_words(result_title)
-                overlap = (
-                    len(original_words & result_words)
-                    / max(1, min(len(original_words), len(result_words)))
-                )
-                normalized_original = " ".join(sorted(original_words))
-                normalized_result = " ".join(sorted(result_words))
-                title_similarity = SequenceMatcher(
-                    None, normalized_original, normalized_result
-                ).ratio()
+        candidates = {}
+        normalized_original = " ".join(sorted(original_words))
+        for data, query_index, rank, source in source_batches:
+            video_id = data.get("id")
+            result_title = (data.get("title") or "").strip()
+            if not video_id or video_id in excluded or not result_title:
+                continue
+            if rejected_versions.search(result_title):
+                continue
 
-                # Reject alternate uploads AND near-identical song names.
-                # Example: "Chand Waaliyan" vs "Chandigarh Waaliyan".
-                if len(original_words) >= 2 and (
-                    overlap >= 0.50 or title_similarity >= 0.62
-                ):
-                    continue
+            result_words = title_words(result_title)
+            overlap = (
+                len(original_words & result_words)
+                / max(1, min(len(original_words), len(result_words)))
+            )
+            normalized_result = " ".join(sorted(result_words))
+            title_similarity = SequenceMatcher(
+                None, normalized_original, normalized_result
+            ).ratio()
+            if len(original_words) >= 2 and (
+                overlap >= 0.50 or title_similarity >= 0.62
+            ):
+                continue
 
-                duration = data.get("duration")
-                try:
+            duration = data.get("duration")
+            try:
+                if isinstance(duration, (int, float)):
+                    duration_sec = int(duration)
+                else:
                     duration_sec = utils.to_seconds(duration) if duration else 0
-                except (TypeError, ValueError):
-                    logger.warning(
-                        f"Autoplay skipped result with invalid duration: {duration!r}"
-                    )
-                    continue
+            except (TypeError, ValueError):
+                continue
+            if duration_sec < 90 or duration_sec > max_duration:
+                continue
 
-                # Ignore Shorts, snippets and unusually long compilations.
-                if duration_sec < 90 or duration_sec > max_duration:
-                    continue
+            result_artist = artist_hint(result_title)
+            artist_bonus = 0
+            if artist and (
+                artist.casefold() == result_artist.casefold()
+                or artist.casefold() in result_title.casefold()
+            ):
+                artist_bonus = 18
 
-                thumbnails = data.get("thumbnails") or []
-                thumbnail = (
-                    (thumbnails[-1].get("url") or "").split("?")[0]
-                    if thumbnails else None
-                )
-                # Earlier, more focused searches and higher-ranked results win.
+            if source == "mix":
+                score = 100 - rank
+            else:
                 score = (len(queries) - query_index) * 10 + (10 - rank)
-                track = Track(
-                    id=video_id,
-                    channel_name=(data.get("channel") or {}).get("name"),
-                    duration=duration,
-                    duration_sec=duration_sec,
-                    title=result_title,
-                    thumbnail=thumbnail,
-                    url=data.get("link"),
-                    video=video,
-                )
-                old = candidates.get(video_id)
-                if old is None or score > old[0]:
-                    candidates[video_id] = (score, track)
+            score += artist_bonus
+
+            thumbnails = data.get("thumbnails") or []
+            thumbnail = (
+                (thumbnails[-1].get("url") or "").split("?")[0]
+                if thumbnails else None
+            )
+            channel_data = data.get("channel") or {}
+            channel_name = (
+                channel_data.get("name", "")
+                if isinstance(channel_data, dict) else str(channel_data)
+            )
+            duration_label = str(duration) if duration else (
+                f"{duration_sec // 60}:{duration_sec % 60:02d}"
+            )
+            track = Track(
+                id=video_id,
+                channel_name=channel_name,
+                duration=duration_label,
+                duration_sec=duration_sec,
+                title=result_title,
+                thumbnail=thumbnail,
+                url=data.get("link") or f"{self.base}{video_id}",
+                video=video,
+            )
+            old_candidate = candidates.get(video_id)
+            if old_candidate is None or score > old_candidate[0]:
+                candidates[video_id] = (score, track)
 
         if not candidates:
             return None
 
-        # Add a little variety, but only among the strongest matches.
         ranked = sorted(candidates.values(), key=lambda item: item[0], reverse=True)
-        shortlist = [track for _, track in ranked[:5]]
-        return random.choice(shortlist)
+        return random.choice([track for _, track in ranked[:3]])
 
     async def playlist(self, limit: int, user: str, url: str, video: bool) -> list[Track | None]:
         tracks = []
