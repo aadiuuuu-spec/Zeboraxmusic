@@ -206,6 +206,7 @@ class TgCall(PyTgCalls):
                     exclude_ids=excluded_ids,
                     video=previous.video,
                     max_duration=config.DURATION_LIMIT,
+                    current_id=previous.id,
                 )
                 if title else None
             )
