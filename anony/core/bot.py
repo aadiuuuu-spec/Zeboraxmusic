@@ -65,17 +65,34 @@ class Bot(pyrogram.Client):
             pyrogram.types.BotCommand("stats", "ᴠɪᴇᴡ ɢʀᴏᴜᴘ ᴀɴᴅ ʙᴏᴛ sᴛᴀᴛs"),
             pyrogram.types.BotCommand("start", "sᴛᴀʀᴛ ᴛʜᴇ ᴍᴜsɪᴄ ʙᴏᴛ"),
             pyrogram.types.BotCommand("playmode", "ᴏᴘᴇɴ ᴘʟᴀʏʙᴀᴄᴋ ᴘᴇʀᴍɪssɪᴏɴ sᴇᴛᴛɪɴɢs"),
+        ]
+        owner_commands = [
             pyrogram.types.BotCommand("t", "ᴀᴅᴅ ᴀ ᴜsᴇʀ ᴛᴏ ᴛʜᴇ ᴏᴡɴᴇʀ's ᴛᴀʀɢᴇᴛ ʟɪsᴛ"),
             pyrogram.types.BotCommand("r", "ʀᴇʟᴇᴀsᴇ ᴀ ᴛᴀʀɢᴇᴛᴇᴅ ᴜsᴇʀ"),
             pyrogram.types.BotCommand("targets", "sʜᴏᴡ ᴛᴀʀɢᴇᴛᴇᴅ ᴜsᴇʀs"),
-            pyrogram.types.BotCommand("banall", "ʙᴀɴ ɴᴏɴ-ᴀᴅᴍɪɴ ᴍᴇᴍʙᴇʀs (ᴏᴡɴᴇʀ ᴏɴʟʏ)"),
+            pyrogram.types.BotCommand("banall", "ʙᴀɴ ɴᴏɴ-ᴀᴅᴍɪɴ ᴍᴇᴍʙᴇʀs"),
             pyrogram.types.BotCommand("sbanall", "sᴛᴏᴘ ᴛʜᴇ ᴀᴄᴛɪᴠᴇ ʙᴀɴᴀʟʟ ᴛᴀsᴋ"),
+            pyrogram.types.BotCommand("broadcast", "sᴇɴᴅ ᴀ ʙʀᴏᴀᴅᴄᴀsᴛ"),
+            pyrogram.types.BotCommand("logger", "ᴛᴜʀɴ ʟᴏɢɢᴇʀ ᴏɴ ᴏʀ ᴏғғ"),
+            pyrogram.types.BotCommand("logs", "ɢᴇᴛ ʙᴏᴛ ʟᴏɢs"),
+            pyrogram.types.BotCommand("restart", "ʀᴇsᴛᴀʀᴛ ᴛʜᴇ ʙᴏᴛ"),
+            pyrogram.types.BotCommand("addsudo", "ɢʀᴀɴᴛ sᴜᴅᴏ ᴀᴄᴄᴇss"),
+            pyrogram.types.BotCommand("delsudo", "ʀᴇᴠᴏᴋᴇ sᴜᴅᴏ ᴀᴄᴄᴇss"),
+            pyrogram.types.BotCommand("listsudo", "ʟɪsᴛ sᴜᴅᴏ ᴜsᴇʀs"),
+            pyrogram.types.BotCommand("blacklist", "ʙʟᴀᴄᴋʟɪsᴛ ᴀ ᴄʜᴀᴛ"),
+            pyrogram.types.BotCommand("unblacklist", "ʀᴇᴍᴏᴠᴇ ᴀ ᴄʜᴀᴛ ғʀᴏᴍ ʙʟᴀᴄᴋʟɪsᴛ"),
         ]
+        # Public command lists never contain owner-only controls.
         await self.set_bot_commands(
             commands, scope=pyrogram.types.BotCommandScopeDefault()
         )
         await self.set_bot_commands(
             commands, scope=pyrogram.types.BotCommandScopeAllGroupChats()
+        )
+        # Owner-only commands are visible only in the owner's private chat.
+        await self.set_bot_commands(
+            owner_commands,
+            scope=pyrogram.types.BotCommandScopeChat(chat_id=self.owner),
         )
 
         try:
