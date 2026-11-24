@@ -31,7 +31,15 @@ class Bot(pyrogram.Client):
         Raises:
             SystemExit: If the bot fails to access the log group or is not an administrator in the logger group.
         """
-        await super().start()
+        try:
+            await super().start()
+        except Exception:
+            logger.exception(
+                "Telegram bot authorization failed. Check BOT_TOKEN, API_ID/API_HASH, "
+                "and Telegram connectivity; do not rotate credentials until the "
+                "underlying exception is identified."
+            )
+            raise
         self.id = self.me.id
         self.name = self.me.first_name
         self.username = self.me.username
