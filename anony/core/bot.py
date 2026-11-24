@@ -25,40 +25,40 @@ class Bot(pyrogram.Client):
         self.sudoers = pyrogram.filters.user(self.owner)
 
     async def _register_command_menu(self):
-        """Register clean Telegram slash-command menus without exposing owner tools."""
+        """Register public commands with the original small-caps style."""
         public_commands = [
-            ("start", "Start the music bot"),
-            ("help", "Show help and command categories"),
-            ("play", "Play a song or audio link"),
-            ("vplay", "Play a video in the voice chat"),
-            ("pause", "Pause the current stream"),
-            ("resume", "Resume the paused stream"),
-            ("skip", "Skip the current track"),
-            ("stop", "Stop playback and clear the queue"),
-            ("queue", "Show the current music queue"),
-            ("loop", "Set or disable track looping"),
-            ("seek", "Seek forward in the current track"),
-            ("seekback", "Seek backward in the current track"),
-            ("autoplay", "Enable, disable, or check autoplay"),
-            ("ping", "Check bot response and system status"),
-            ("stats", "Show bot statistics"),
-            ("lang", "Change the chat language"),
+            ("start", "Sᴛᴀʀᴛ ᴛʜᴇ ᴍᴜsɪᴄ ʙᴏᴛ"),
+            ("help", "Sʜᴏᴡ ʜᴇʟᴘ ᴀɴᴅ ᴄᴏᴍᴍᴀɴᴅ ᴄᴀᴛᴇɢᴏʀɪᴇs"),
+            ("play", "Pʟᴀʏ ᴀ sᴏɴɢ ᴏʀ ᴀᴜᴅɪᴏ ʟɪɴᴋ"),
+            ("vplay", "Pʟᴀʏ ᴀ ᴠɪᴅᴇᴏ ɪɴ ᴛʜᴇ ᴠᴏɪᴄᴇ ᴄʜᴀᴛ"),
+            ("pause", "Pᴀᴜsᴇ ᴛʜᴇ ᴄᴜʀʀᴇɴᴛ sᴛʀᴇᴀᴍ"),
+            ("resume", "Rᴇsᴜᴍᴇ ᴛʜᴇ ᴘᴀᴜsᴇᴅ sᴛʀᴇᴀᴍ"),
+            ("skip", "Sᴋɪᴘ ᴛʜᴇ ᴄᴜʀʀᴇɴᴛ ᴛʀᴀᴄᴋ"),
+            ("stop", "Sᴛᴏᴘ ᴘʟᴀʏʙᴀᴄᴋ ᴀɴᴅ ᴄʟᴇᴀʀ ᴛʜᴇ ǫᴜᴇᴜᴇ"),
+            ("queue", "Sʜᴏᴡ ᴛʜᴇ ᴄᴜʀʀᴇɴᴛ ᴍᴜsɪᴄ ǫᴜᴇᴜᴇ"),
+            ("loop", "Sᴇᴛ ᴏʀ ᴅɪsᴀʙʟᴇ ᴛʀᴀᴄᴋ ʟᴏᴏᴘɪɴɢ"),
+            ("seek", "Sᴇᴇᴋ ꜰᴏʀᴡᴀʀᴅ ɪɴ ᴛʜᴇ ᴄᴜʀʀᴇɴᴛ ᴛʀᴀᴄᴋ"),
+            ("seekback", "Sᴇᴇᴋ ʙᴀᴄᴋᴡᴀʀᴅ ɪɴ ᴛʜᴇ ᴄᴜʀʀᴇɴᴛ ᴛʀᴀᴄᴋ"),
+            ("autoplay", "Eɴᴀʙʟᴇ, ᴅɪsᴀʙʟᴇ, ᴏʀ ᴄʜᴇᴄᴋ ᴀᴜᴛᴏᴘʟᴀʏ"),
+            ("ping", "Cʜᴇᴄᴋ ʙᴏᴛ ʀᴇsᴘᴏɴsᴇ ᴀɴᴅ sʏsᴛᴇᴍ sᴛᴀᴛᴜs"),
+            ("stats", "Sʜᴏᴡ ʙᴏᴛ sᴛᴀᴛɪsᴛɪᴄs"),
+            ("lang", "Cʜᴀɴɢᴇ ᴛʜᴇ ᴄʜᴀᴛ ʟᴀɴɢᴜᴀɢᴇ"),
         ]
         owner_commands = [
-            ("auth", "Authorize a user to control playback"),
-            ("unauth", "Remove a playback-authorized user"),
-            ("blacklist", "Blacklist a chat or user"),
-            ("unblacklist", "Remove a chat or user from blacklist"),
-            ("sudoers", "Show the sudo user list"),
-            ("ac", "Show the active voice chat count"),
-            ("activevc", "List active voice chats"),
-            ("broadcast", "Broadcast a replied message"),
-            ("eval", "Execute an owner code snippet"),
-            ("logs", "Get the latest bot log file"),
-            ("logger", "Enable or disable bot logging"),
-            ("restart", "Restart the bot"),
-            ("addsudo", "Add a sudo user"),
-            ("rmsudo", "Remove a sudo user"),
+            ("auth", "Aᴜᴛʜᴏʀɪᴢᴇ ᴀ ᴜsᴇʀ ᴛᴏ ᴄᴏɴᴛʀᴏʟ ᴘʟᴀʏʙᴀᴄᴋ"),
+            ("unauth", "Rᴇᴍᴏᴠᴇ ᴀ ᴘʟᴀʏʙᴀᴄᴋ-ᴀᴜᴛʜᴏʀɪᴢᴇᴅ ᴜsᴇʀ"),
+            ("blacklist", "Bʟᴀᴄᴋʟɪsᴛ ᴀ ᴄʜᴀᴛ ᴏʀ ᴜsᴇʀ"),
+            ("unblacklist", "Rᴇᴍᴏᴠᴇ ᴀ ᴄʜᴀᴛ ᴏʀ ᴜsᴇʀ ꜰʀᴏᴍ ʙʟᴀᴄᴋʟɪsᴛ"),
+            ("sudoers", "Sʜᴏᴡ ᴛʜᴇ sᴜᴅᴏ ᴜsᴇʀ ʟɪsᴛ"),
+            ("ac", "Sʜᴏᴡ ᴛʜᴇ ᴀᴄᴛɪᴠᴇ ᴠᴏɪᴄᴇ ᴄʜᴀᴛ ᴄᴏᴜɴᴛ"),
+            ("activevc", "Lɪsᴛ ᴀᴄᴛɪᴠᴇ ᴠᴏɪᴄᴇ ᴄʜᴀᴛs"),
+            ("broadcast", "Bʀᴏᴀᴅᴄᴀsᴛ ᴀ ʀᴇᴘʟɪᴇᴅ ᴍᴇssᴀɢᴇ"),
+            ("eval", "Exᴇᴄᴜᴛᴇ ᴀɴ ᴏᴡɴᴇʀ ᴄᴏᴅᴇ sɴɪᴘᴘᴇᴛ"),
+            ("logs", "Gᴇᴛ ᴛʜᴇ ʟᴀᴛᴇsᴛ ʙᴏᴛ ʟᴏɢ ꜰɪʟᴇ"),
+            ("logger", "Eɴᴀʙʟᴇ ᴏʀ ᴅɪsᴀʙʟᴇ ʙᴏᴛ ʟᴏɢɢɪɴɢ"),
+            ("restart", "Rᴇsᴛᴀʀᴛ ᴛʜᴇ ʙᴏᴛ"),
+            ("addsudo", "Aᴅᴅ ᴀ sᴜᴅᴏ ᴜsᴇʀ"),
+            ("rmsudo", "Rᴇᴍᴏᴠᴇ ᴀ sᴜᴅᴏ ᴜsᴇʀ"),
         ]
 
         make_commands = lambda items: [
@@ -110,7 +110,7 @@ class Bot(pyrogram.Client):
             await self.send_message(self.logger, "Bot Started")
             get = await self.get_chat_member(self.logger, self.id)
         except Exception as ex:
-            raise SystemExit(f"Bot has failed to access the log group: {self.logger}\nReason: {ex}")
+            raise SystemExit(f"Bot has failed to access the log group: {self.logger}\\nReason: {ex}")
 
         if get.status != pyrogram.enums.ChatMemberStatus.ADMINISTRATOR:
             raise SystemExit("Please promote the bot as an admin in logger group.")
